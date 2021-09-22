@@ -13,10 +13,9 @@ logging.basicConfig(level=logging.INFO)
 PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-BOT_TOKEN = os.getenv('BOT_TOKEN')
 URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
 
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=TELEGRAM_TOKEN)
 
 logging.basicConfig(
     level=logging.INFO,
