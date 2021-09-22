@@ -76,5 +76,6 @@ def main():
             time.sleep(5)
             logging.error(e, exc_info=True)
 
+
 if __name__ == '__main__':
     main()
