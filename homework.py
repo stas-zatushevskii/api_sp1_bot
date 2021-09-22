@@ -26,8 +26,11 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
-handler = RotatingFileHandler('my_logger.log', maxBytes=50000000, backupCount=5)
-logger.addHandler(handler) 
+handler = RotatingFileHandler(
+    'my_logger.log', maxBytes=50000000, backupCount=5
+)
+logger.addHandler(handler)
+
 
 def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
@@ -41,6 +44,7 @@ def parse_homework_status(homework):
         print(f'Чет не то: {error}')
         logging.error(error, exc_info=True)
 
+
 def get_homeworks(current_timestamp):
     headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
     payload = {'from_date': current_timestamp}
@@ -51,8 +55,10 @@ def get_homeworks(current_timestamp):
         logging.error(error, exc_info=True)
     return homework_statuses.json()
 
+
 def send_message(message):
     return bot.send_message(message)
+
 
 def main():
     current_timestamp = int(time.time())  # Начальное значение timestamp
@@ -63,7 +69,7 @@ def main():
             for homework in reversed(home_work_status['homeworks']):
                 result = parse_homework_status(homework)
                 send_message(result)
-            time.sleep(5 * 60) # Опрашивать раз в пять минут
+            time.sleep(5 * 60)  # Опрашивать раз в пять минут
 
         except Exception as e:
             print(f'Бот упал с ошибкой: {e}')
