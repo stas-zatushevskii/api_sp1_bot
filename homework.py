@@ -50,6 +50,7 @@ def parse_homework_status(homework):
     return PHRASE_FOR_otvet.format(
         name_to_insert=homework_name, verdict_to_insert=verdict)
 
+
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 
 
