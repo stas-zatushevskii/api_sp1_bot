@@ -12,7 +12,7 @@ load_dotenv()
 PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-URL = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
+URL = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
@@ -20,7 +20,7 @@ bot = Bot(token=TELEGRAM_TOKEN)
 if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
-        filename=os.path.expanduser('~/main.log'),
+        filename='main.log',
         filemode='w',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 
@@ -33,39 +33,47 @@ PPROVED = 'Ревьюеру всё понравилось, работа зачт
 ANSWER = (
     'У вас проверили работу "{name}" !\n\n{verdict}')
 UNEXPECTED_RESPONSE = 'Неожиданный ответ от сервера'
-ERROR = 'Сервер сообщил про отказ'
+ERROR = 'Сервер сообщил об отказ'
+HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
+
+
+ANSWER_FOR_STATUS = {
+    'rejected': REJECTED,
+    'reviewing': REVIEWING,
+    'approved': PPROVED
+}
+
+ANSWER_FOR_JSON_ERROR = {
+    'error': ERROR,
+    'code': ERROR
+}
 
 
 def parse_homework_status(homework):
-    if homework['status'] == 'rejected':
-        verdict = REJECTED
-    elif homework['status'] == 'reviewing':
-        verdict = REVIEWING
-    elif homework['status'] == 'approved':
-        verdict = PPROVED
-    else:
+    try:
+        status = homework['status']
+        verdict = ANSWER_FOR_STATUS[status]
+    except:
         verdict = UNEXPECTED_RESPONSE
-
     return ANSWER.format(
         name=homework['homework_name'], verdict=verdict)
-
-
-HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
+    # ход конём, чёт функция подозрительно похудела
 
 
 def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except ConnectionError as error:
-        raise error(f'Ошибка соединения, {payload}')
+    except ValueError as error:
+        raise error(
+            f'Ошибка соединения, параметры запроса : ' +
+            f' {payload}, {HEADERS}, ошибка : {error}')
     # на случай если ответ от яндекса не утешающий
-    if homework_statuses == 'error':
-        return ERROR
-    elif homework_statuses == 'code':
-        return ERROR
-    else:
-        return homework_statuses.json()
+    for status in homework_statuses:
+        if 'error' or 'code' in status:
+            raise ValueError(
+                f'Яндекс не дал домашку, ответ сервера:{homework_statuses}, ' +
+                f'параметры запроса {HEADERS}, {payload}')
 
 
 def send_message(message):
@@ -77,12 +85,12 @@ def main():
 
     while True:
         try:
-            home_work_status = get_homeworks(current_timestamp)
-            homework = reversed(home_work_status['homeworks'])
-            result = parse_homework_status(homework[1])
-            # на случай если не правильно -
-            # (не понимаю как тут обойтись без цыкла)
-            send_message(result)
+            homework_statuses = get_homeworks(current_timestamp)
+            current_timestamp = homework_statuses['current_date']
+            for homework in homework_statuses['homeworks']:
+                message = parse_homework_status(homework)
+                send_message(message)
+
             time.sleep(5 * 60)  # Опрашивать раз в пять минут
 
         except Exception as error:
