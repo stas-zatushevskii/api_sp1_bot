@@ -20,7 +20,7 @@ bot = Bot(token=TELEGRAM_TOKEN)
 if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
-        filename=os.path.expanduser('~/api_sp1_bot/main.log'),
+        filename=os.path.expanduser('~/main.log'),
         filemode='w',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 
