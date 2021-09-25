@@ -70,11 +70,12 @@ def get_homeworks(current_timestamp):
             f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}')
     # на случай если ответ от яндекса не утешающий
     if 'error' or 'code' in homework_statuses.json():
-    # ValueError - Ошибка значения,
-    # мне кажется когда значения ключа не подходят
-    # эта ошибка лучше всего подходит
+        # ValueError - Ошибка значения,
+        # мне кажется когда значения ключа не подходят
+        # эта ошибка лучше всего подходит
         raise ValueError(
-            f'Яндекс полмался :{homework_statuses.text}, {HEADERS}, {payload}, {URL}')
+            f('Яндекс полмался :{homework_statuses.text}',
+                '{HEADERS}, {payload}, {URL}'))
     return homework_statuses
 
 
