@@ -54,7 +54,7 @@ def parse_homework_status(homework):
     try:
         status = homework['status']
         verdict = ANSWER_FOR_STATUS[status]
-    except:
+    except Exception:
         verdict = UNEXPECTED_RESPONSE
     return ANSWER.format(
         name=homework['homework_name'], verdict=verdict)
