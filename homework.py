@@ -74,8 +74,8 @@ def get_homeworks(current_timestamp):
         # мне кажется когда значения ключа не подходят
         # эта ошибка лучше всего подходит
         raise ValueError(
-            f('Яндекс полмался :{homework_statuses.text}',
-                '{HEADERS}, {payload}, {URL}'))
+            (f'Яндекс полмался :{homework_statuses.text}',
+                f'{HEADERS}, {payload}, {URL}'))
     return homework_statuses
 
 
