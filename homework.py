@@ -5,6 +5,7 @@ import time
 
 from dotenv import load_dotenv
 import requests
+from urllib.error import HTTPError
 from telegram import Bot
 
 load_dotenv()
@@ -64,8 +65,8 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except ValueError as error:
-        raise error(
+    except HTTPError as error:
+        raise HTTPError(
             f'Ошибка соединения, параметры запроса : ' +
             f' {payload}, {HEADERS}, ошибка : {error}')
     # на случай если ответ от яндекса не утешающий
