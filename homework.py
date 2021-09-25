@@ -69,14 +69,18 @@ def get_homeworks(current_timestamp):
         raise requests.ConnectionError(
             f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}')
     # на случай если ответ от яндекса не утешающий
-    if 'error' or 'code' in homework_statuses.json():
+    if 'code' in homework_statuses.json():
         # ValueError - Ошибка значения,
         # мне кажется когда значения ключа не подходят
         # эта ошибка лучше всего подходит
         raise ValueError(
             (f'Яндекс полмался :{homework_statuses.json()}',
                 f'{HEADERS}, {payload}, {URL}'))
-    return homework_statuses
+    if 'error' in homework_statuses.json():
+        raise ValueError(
+            (f'Яндекс полмался :{homework_statuses.json()}',
+                f'{HEADERS}, {payload}, {URL}'))
+    return homework_statuses.json()
 
 
 def send_message(message):
@@ -91,7 +95,7 @@ def main():
             homework_statuses = get_homeworks(current_timestamp)
             current_timestamp = homework_statuses['current_date']
             homework = homework_statuses['homeworks']
-            message = parse_homework_status(homework[0])
+            message = parse_homework_status(homework[1])
             send_message(message)
 
             time.sleep(5 * 60)  # Опрашивать раз в пять минут
