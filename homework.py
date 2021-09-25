@@ -5,7 +5,6 @@ import time
 
 from dotenv import load_dotenv
 import requests
-from urllib.error import HTTPError
 from telegram import Bot
 
 load_dotenv()
@@ -52,10 +51,10 @@ ANSWER_FOR_JSON_ERROR = {
 
 
 def parse_homework_status(homework):
-    try:
-        status = homework['status']
+    status = homework['status']
+    if status in ANSWER_FOR_STATUS:
         verdict = ANSWER_FOR_STATUS[status]
-    except Exception:
+    else:
         verdict = UNEXPECTED_RESPONSE
     return ANSWER.format(
         name=homework['homework_name'], verdict=verdict)
@@ -66,15 +65,17 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except HTTPError as error:
-        raise HTTPError(
+    except requests.RequestException as error:
+        raise requests.ConnectionError(
             f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}')
     # на случай если ответ от яндекса не утешающий
     if 'error' or 'code' in homework_statuses.json():
+    # ValueError - Ошибка значения,
+    # мне кажется когда значения ключа не подходят
+    # эта ошибка лучше всего подходит
         raise ValueError(
-            f'Яндекс полмался :{homework_statuses}, {HEADERS}, {payload}')
-    else:
-        return homework_statuses.json()
+            f'Яндекс полмался :{homework_statuses.text}, {HEADERS}, {payload}, {URL}')
+    return homework_statuses
 
 
 def send_message(message):
@@ -88,9 +89,9 @@ def main():
         try:
             homework_statuses = get_homeworks(current_timestamp)
             current_timestamp = homework_statuses['current_date']
-            for homework in homework_statuses['homeworks']:
-                message = parse_homework_status(homework)
-                send_message(message)
+            homework = homework_statuses['homeworks']
+            message = parse_homework_status(homework[0])
+            send_message(message)
 
             time.sleep(5 * 60)  # Опрашивать раз в пять минут
 
