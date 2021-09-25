@@ -73,8 +73,9 @@ def get_homeworks(current_timestamp):
     if 'error' in homework_statuses:
         raise ValueError(
             f'Яндекс полмался :{homework_statuses}, {HEADERS}, {payload}')
-    else: 
-        return homework_statuses.json() 
+    else:
+        return homework_statuses.json()
+
 
 def send_message(message):
     return bot.send_message(message)
