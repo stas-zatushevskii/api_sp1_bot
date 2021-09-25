@@ -67,14 +67,12 @@ def get_homeworks(current_timestamp):
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
     except HTTPError as error:
         raise HTTPError(
-            f'Ошибка соединения, параметры запроса : ' +
-            f' {payload}, {HEADERS}, ошибка : {error}')
+            f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}')
     # на случай если ответ от яндекса не утешающий
     for status in homework_statuses:
         if 'error' or 'code' in status:
             raise ValueError(
-                f'Яндекс не дал домашку, ответ сервера:{homework_statuses}, ' +
-                f'параметры запроса {HEADERS}, {payload}')
+                f'Яндекс полмался :{homework_statuses}, {HEADERS}, {payload}')
 
 
 def send_message(message):
