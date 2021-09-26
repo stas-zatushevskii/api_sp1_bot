@@ -75,7 +75,8 @@ def get_homeworks(current_timestamp):
         if response in JSON_ERROR.keys():
             raise ValueError(
             UNEXPECTED_KEY.format(
-                JSON_ERROR=ERROR[response],HEADERS=HEADERS, payload=payload, URL=URL))
+                JSON_ERROR=ERROR[response], 
+                    HEADERS=HEADERS, payload=payload, URL=URL))
     return homework_statuses.json()
 
 
