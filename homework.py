@@ -1,7 +1,6 @@
-import logging
-import os
-import time
-
+import logging 
+import os 
+import time 
 
 from dotenv import load_dotenv
 import requests
@@ -20,11 +19,11 @@ bot = Bot(token=TELEGRAM_TOKEN)
 if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
-        filename='main.log',
+        filename=os.path.expanduser('~/main.log'),
         filemode='w',
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 
-    ),
+    ),  
 
 
 REJECTED = 'К сожалению, в работе нашлись ошибки.'
@@ -32,19 +31,20 @@ REVIEWING = 'Работа взята в ревью'
 PPROVED = 'Ревьюеру всё понравилось, работа зачтена!'
 ANSWER = (
     'У вас проверили работу "{name}" !\n\n{verdict}')
-UNEXPECTED_RESPONSE = 'Неожиданный ответ от сервера'
+UNEXPECTED_RESPONSE = 'Неожиданный статус в ответе сервера: {status_name}'
 ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
+UNEXPECTED_KEY =('Яндекс полмался :{JSON_ERROR}',
+                    '{HEADERS}, {payload}, {URL}')
 
-
-ANSWER_FOR_STATUS = {
+STATUSES = {
     'rejected': REJECTED,
     'reviewing': REVIEWING,
     'approved': PPROVED
 }
 
-ANSWER_FOR_JSON_ERROR = {
+JSON_ERROR = {
     'error': ERROR,
     'code': ERROR
 }
@@ -52,10 +52,10 @@ ANSWER_FOR_JSON_ERROR = {
 
 def parse_homework_status(homework):
     status = homework['status']
-    if status in ANSWER_FOR_STATUS:
-        verdict = ANSWER_FOR_STATUS[status]
+    if status in STATUSES:
+        verdict = STATUSES[status]
     else:
-        verdict = UNEXPECTED_RESPONSE
+        raise ValueError(UNEXPECTED_RESPONSE.format(status_name=STATUSES[status]))
     return ANSWER.format(
         name=homework['homework_name'], verdict=verdict)
     # ход конём, чёт функция подозрительно похудела
@@ -65,21 +65,15 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except requests.RequestException as error:
+    except AttributeError as error:
         raise requests.ConnectionError(
-            f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}')
+            f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}, {URL}')
     # на случай если ответ от яндекса не утешающий
-    if 'code' in homework_statuses.json():
-        # ValueError - Ошибка значения,
-        # мне кажется когда значения ключа не подходят
-        # эта ошибка лучше всего подходит
-        raise ValueError(
-            (f'Яндекс полмался :{homework_statuses.json()}',
-                f'{HEADERS}, {payload}, {URL}'))
-    if 'error' in homework_statuses.json():
-        raise ValueError(
-            (f'Яндекс полмался :{homework_statuses.json()}',
-                f'{HEADERS}, {payload}, {URL}'))
+    for response in homework_statuses.json():
+        if response in JSON_ERROR.keys():
+            raise ValueError(
+                UNEXPECTED_KEY.format(JSON_ERROR=ERROR[response],
+                    HEADERS=HEADERS, payload=payload, URL=URL))
     return homework_statuses.json()
 
 
@@ -93,16 +87,16 @@ def main():
     while True:
         try:
             homework_statuses = get_homeworks(current_timestamp)
-            current_timestamp = homework_statuses['current_date']
+            current_timestamp = homework_statuses.get("current_date")
             homework = homework_statuses['homeworks']
-            message = parse_homework_status(homework[1])
+            message = parse_homework_status(homework[0])
             send_message(message)
 
             time.sleep(5 * 60)  # Опрашивать раз в пять минут
 
         except Exception as error:
             print(MAIN_ERROR.format(error=error))
-            logging.error(error, exc_info=True)
+            logging.error(MAIN_ERROR, exc_info=True)
             time.sleep(13 * 60)
 
 
