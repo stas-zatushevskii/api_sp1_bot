@@ -3,8 +3,8 @@ import os
 import time
 
 from dotenv import load_dotenv
-import requests
 from telegram import Bot
+import requests
 
 load_dotenv()
 
@@ -35,8 +35,10 @@ UNEXPECTED_RESPONSE = 'Неожиданный статус в ответе се�
 ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
-UNEXPECTED_KEY = (
-    'Яндекс полмался :{JSON_ERROR}, {HEADERS}, {payload}, {URL}')
+KEY = (
+    'Яндекс полмался :{json_error}, {headers}, {payload}, {url}')
+CONECT_ERROR = ('Ошибка соединения, :{payload},'
+                + '{headers}, ошибка : {error}, {url}')
 
 STATUSES = {
     'rejected': REJECTED,
@@ -66,17 +68,17 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except AttributeError as error:
+    except RuntimeError as error:
         raise requests.ConnectionError(
-            (f'Ошибка соединения, :{payload},'
-                + f'{HEADERS}, ошибка : {error}, {URL}'))
+            CONECT_ERROR.format(
+                payload=payload, headers=HEADERS, error=error, url=URL))
     # на случай если ответ от яндекса не утешающий
-    for response in homework_statuses.json():
-        if response in JSON_ERROR.keys():
-            raise ValueError(
-                UNEXPECTED_KEY.format(JSON_ERROR=ERROR[
-                    response], HEADERS=HEADERS, payload=payload, URL=URL))
-    return homework_statuses.json()
+    homework_json = homework_statuses.json()
+    for key in ('code', 'error'):
+        if key in homework_json:
+            raise RuntimeError(
+                KEY.format(json_error = key, headers=HEADERS, payload=payload, url=URL))
+    return homework_json
 
 
 def send_message(message):
@@ -89,7 +91,7 @@ def main():
     while True:
         try:
             homework_statuses = get_homeworks(current_timestamp)
-            current_timestamp = homework_statuses.get("current_date")
+            current_timestamp = homework_statuses.get("current_date", "date_updated")
             homework = homework_statuses['homeworks']
             message = parse_homework_status(homework[0])
             send_message(message)
