@@ -36,7 +36,7 @@ ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
 UNEXPECTED_KEY = ('Яндекс полмался :{JSON_ERROR},'
-+'{HEADERS}, {payload}, {URL}')
+    + '{HEADERS}, {payload}, {URL}')
 
 STATUSES = {
     'rejected': REJECTED,
