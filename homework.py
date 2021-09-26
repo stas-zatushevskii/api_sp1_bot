@@ -77,7 +77,8 @@ def get_homeworks(current_timestamp):
     for key in ('code', 'error'):
         if key in homework_json:
             raise RuntimeError(
-                KEY.format(json_error = key, headers=HEADERS, payload=payload, url=URL))
+                KEY.format(
+                    json_error=key, headers=HEADERS, payload=payload, url=URL))
     return homework_json
 
 
@@ -91,7 +92,8 @@ def main():
     while True:
         try:
             homework_statuses = get_homeworks(current_timestamp)
-            current_timestamp = homework_statuses.get("current_date", "date_updated")
+            current_timestamp = homework_statuses.get(
+                "current_date", "date_updated")
             homework = homework_statuses['homeworks']
             message = parse_homework_status(homework[0])
             send_message(message)
