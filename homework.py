@@ -1,6 +1,6 @@
-import logging 
-import os 
-import time 
+import logging
+import os
+import time
 
 from dotenv import load_dotenv
 import requests
@@ -35,8 +35,8 @@ UNEXPECTED_RESPONSE = 'Неожиданный статус в ответе се�
 ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
-UNEXPECTED_KEY =('Яндекс полмался :{JSON_ERROR}',
-                    '{HEADERS}, {payload}, {URL}')
+UNEXPECTED_KEY =('Яндекс полмался :{JSON_ERROR},'
+                + '{HEADERS}, {payload}, {URL}')
 
 STATUSES = {
     'rejected': REJECTED,
@@ -55,7 +55,8 @@ def parse_homework_status(homework):
     if status in STATUSES:
         verdict = STATUSES[status]
     else:
-        raise ValueError(UNEXPECTED_RESPONSE.format(status_name=STATUSES[status]))
+        raise ValueError(
+            UNEXPECTED_RESPONSE.format(status_name=STATUSES[status]))
     return ANSWER.format(
         name=homework['homework_name'], verdict=verdict)
     # ход конём, чёт функция подозрительно похудела
@@ -67,13 +68,14 @@ def get_homeworks(current_timestamp):
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
     except AttributeError as error:
         raise requests.ConnectionError(
-            f'Ошибка соединения, :{payload}, {HEADERS}, ошибка : {error}, {URL}')
+            (f'Ошибка соединения, :{payload},' 
+            + f'{HEADERS}, ошибка : {error}, {URL}'))
     # на случай если ответ от яндекса не утешающий
     for response in homework_statuses.json():
         if response in JSON_ERROR.keys():
             raise ValueError(
-                UNEXPECTED_KEY.format(JSON_ERROR=ERROR[response],
-                    HEADERS=HEADERS, payload=payload, URL=URL))
+            UNEXPECTED_KEY.format(JSON_ERROR=ERROR[response],
+                HEADERS=HEADERS, payload=payload, URL=URL))
     return homework_statuses.json()
 
 
