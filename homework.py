@@ -36,7 +36,7 @@ ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
 UNEXPECTED_KEY = ('Яндекс полмался :{JSON_ERROR},'
-    + '{HEADERS}, {payload}, {URL}')
++ '{HEADERS}, {payload}, {URL}')
 
 STATUSES = {
     'rejected': REJECTED,
@@ -74,8 +74,8 @@ def get_homeworks(current_timestamp):
     for response in homework_statuses.json():
         if response in JSON_ERROR.keys():
             raise ValueError(
-                UNEXPECTED_KEY.format(JSON_ERROR=ERROR[response],
-                    HEADERS=HEADERS, payload=payload, URL=URL))
+            UNEXPECTED_KEY.format(JSON_ERROR=ERROR[response],
+                HEADERS=HEADERS, payload=payload, URL=URL))
     return homework_statuses.json()
 
 
