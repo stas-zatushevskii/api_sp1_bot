@@ -36,7 +36,8 @@ ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
 KEY = (
-    'Яндекс полмался :{homework_json}, {json_error}, {headers}, {payload}, {url}')
+    'Яндекс полмался :{homework_json},',
+    '{json_error}, {headers}, {payload}, {url}')
 CONECT_ERROR = ('Ошибка соединения, :{payload},'
                 + '{headers}, ошибка : {error}, {url}')
 
