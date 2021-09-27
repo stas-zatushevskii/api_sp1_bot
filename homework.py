@@ -78,7 +78,8 @@ def get_homeworks(current_timestamp):
         if key in homework_json:
             raise RuntimeError(
                 KEY.format(
-                    homework_json[key], json_error=key, headers=HEADERS, payload=payload, url=URL))
+                    homework_json[key],
+                        json_error=key, headers=HEADERS, payload=payload, url=URL))
     return homework_json
 
 
