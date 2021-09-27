@@ -36,7 +36,7 @@ ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
 KEY = (
-    'Яндекс полмался :{json_error}, {headers}, {payload}, {url}')
+    'Яндекс полмался :{homework_json}, {json_error}, {headers}, {payload}, {url}')
 CONECT_ERROR = ('Ошибка соединения, :{payload},'
                 + '{headers}, ошибка : {error}, {url}')
 
@@ -78,7 +78,7 @@ def get_homeworks(current_timestamp):
         if key in homework_json:
             raise RuntimeError(
                 KEY.format(
-                    homework_json[key],
+                    homework_json=homework_json[key],
                     json_error=key,
                     headers=HEADERS,
                     payload=payload,
