@@ -83,7 +83,7 @@ def get_homeworks(current_timestamp):
                     headers=HEADERS,
                     payload=payload,
                     url=URL)
-                        )
+            )
     return homework_json
 
 
