@@ -79,7 +79,11 @@ def get_homeworks(current_timestamp):
             raise RuntimeError(
                 KEY.format(
                     homework_json[key],
-                        json_error=key, headers=HEADERS, payload=payload, url=URL))
+                    json_error=key,
+                    headers=HEADERS,
+                    payload=payload,
+                    url=URL)
+                )
     return homework_json
 
 
