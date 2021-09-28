@@ -64,8 +64,8 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except ConnectionError as error:
-        raise RuntimeError(
+    except RuntimeError as error:
+        raise ConnectionError(
             CONECT_ERROR.format(
                 payload=payload, headers=HEADERS, error=error, url=URL))
     # на случай если ответ от яндекса не утешающий
