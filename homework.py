@@ -36,8 +36,8 @@ ERROR = 'Сервер сообщил об отказ'
 HEADERS = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
 MAIN_ERROR = 'что-то не получилось {error}'
 KEY = (
-    'Яндекс полмался :{homework_json},',
-    '{json_error}, {headers}, {payload}, {url}')
+    'Яндекс дал сбой : неожиданный ключ: {homework_json},',
+    'headers: {headers}, from_date: {payload}, URL: {url}')
 CONECT_ERROR = ('Ошибка соединения, :{payload},'
                 + '{headers}, ошибка : {error}, {url}')
 
@@ -45,11 +45,6 @@ STATUSES = {
     'rejected': REJECTED,
     'reviewing': REVIEWING,
     'approved': PPROVED
-}
-
-JSON_ERROR = {
-    'error': ERROR,
-    'code': ERROR
 }
 
 
@@ -69,8 +64,8 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except RuntimeError as error:
-        raise requests.ConnectionError(
+    except requests.RequestException as error:
+        raise ConnectionError(
             CONECT_ERROR.format(
                 payload=payload, headers=HEADERS, error=error, url=URL))
     # на случай если ответ от яндекса не утешающий
@@ -80,7 +75,6 @@ def get_homeworks(current_timestamp):
             raise RuntimeError(
                 KEY.format(
                     homework_json=homework_json[key],
-                    json_error=key,
                     headers=HEADERS,
                     payload=payload,
                     url=URL)
@@ -99,7 +93,7 @@ def main():
         try:
             homework_statuses = get_homeworks(current_timestamp)
             current_timestamp = homework_statuses.get(
-                "current_date", "current_timestamp")
+                "current_date", current_timestamp)
             homework = homework_statuses['homeworks']
             message = parse_homework_status(homework[0])
             send_message(message)
@@ -107,8 +101,9 @@ def main():
             time.sleep(5 * 60)  # Опрашивать раз в пять минут
 
         except Exception as error:
-            print(MAIN_ERROR.format(error=error))
-            logging.error(MAIN_ERROR.format(error=error), exc_info=True)
+            main_error = MAIN_ERROR.format(error=error)
+            print(main_error)
+            logging.error(main_error, exc_info=True)
             time.sleep(13 * 60)
 
 
