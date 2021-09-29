@@ -64,7 +64,7 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(URL, headers=HEADERS, params=payload)
-    except RuntimeError as error:
+    except requests.RequestException as error:
         raise ConnectionError(
             CONECT_ERROR.format(
                 payload=payload, headers=HEADERS, error=error, url=URL))
@@ -74,7 +74,7 @@ def get_homeworks(current_timestamp):
         if key in homework_json:
             raise RuntimeError(
                 KEY.format(
-                    homework_json=homework_json[key],
+                    homework_json_key=homework_json[key],
                     headers=HEADERS,
                     payload=payload,
                     url=URL)
